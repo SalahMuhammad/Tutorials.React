@@ -2,7 +2,13 @@ import { useState } from 'react'
 import Board from './components/Board';
 
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([
+    [
+      Array(3).fill(null),
+      Array(3).fill(null),
+      Array(3).fill(null),
+    ]
+  ])
   const [currentMove, setCurrentMove] = useState(0);
   const [isAscendinghistoryOrder, setIsAscendingHistoryOrder] = useState(false)
   const xIsNext = currentMove % 2 === 0;

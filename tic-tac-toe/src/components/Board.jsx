@@ -6,20 +6,20 @@ export default function Board({ xIsNext, squares, onPlay }) {
   
   obj
     ? status = "Winner: " + obj.winner
-    : squares.every(square => square !== null)
+    : squares.every((row) => row.every((col) => col !== null))
         ? status = "It's a draw!"
         : status = "Next player: " + (xIsNext ? "X" : "O")  
 
-  function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
+  function handleClick(row, col) {
+    if (calculateWinner(squares) || squares[row][col]) {
       return;
     }
 
-    const nextSquares = squares.slice();
+    const nextSquares = squares.map((row) => row.slice());
 
     xIsNext
-      ? nextSquares[i] = "X"
-      : nextSquares[i] = "O"
+      ? nextSquares[row][col] = "X"
+      : nextSquares[row][col] = "O"
 
     onPlay(nextSquares);
   }
@@ -27,21 +27,20 @@ export default function Board({ xIsNext, squares, onPlay }) {
   return (
     <>
       <div className="status">{status}</div>
-      {[0, 1, 2].map((row) => 
-        <div key={row} className="board-row">
-          {[0, 1, 2].map((col) => {
-            const squareIndex = row * 3 + col
+      {squares.map((row, rowIndex) => (
+        <div key={rowIndex} className="board-row">
+          {row.map((value, columnIndex) => {
             return (
-              <Square
-                key={col} 
-                value={squares[squareIndex]} 
-                onSquareClick={() => handleClick(squareIndex)} 
-                isWinnerSquare={obj && obj.line ? obj.line.includes(squareIndex) : false}
+              <Square 
+                key={columnIndex}
+                value={value} 
+                onSquareClick={() => handleClick(rowIndex, columnIndex)} 
+                isWinnerSquare={obj && JSON.stringify(obj.squares).includes(JSON.stringify([rowIndex, columnIndex]))}
               />
             )
           })}
-        </div> 
-      )}
+        </div>
+      ))}
     </>
   )
 }
@@ -59,9 +58,11 @@ const calculateWinner = (squares) => {
   ];
 
   for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return {line: lines[i], winner: squares[a]};
+    const [a, b, c] = lines[i]
+    const [aa, bb, cc] = [[Math.floor(a / 3), a % 3], [Math.floor(b / 3), b % 3], [Math.floor(c / 3), c % 3]]
+
+    if (squares[aa[0]][aa[1]] && squares[aa[0]][aa[1]] == squares[bb[0]][bb[1]] && squares[aa[0]][aa[1]] == squares[cc[0]][cc[1]]) {
+      return {squares: [aa, bb, cc], winner: squares[aa[0]][aa[1]]}
     }
   }
 
